@@ -1,0 +1,49 @@
+@model IEnumerable<Post>
+@{
+    ViewData["Title"] = "Pending posts";
+}
+
+<h1 class="h3 mb-4">Pending posts</h1>
+
+@if (!Model.Any())
+{
+    <div class="bg-white rounded-3 shadow-sm p-5 text-center text-muted">
+        Nothing pending. 🎉
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var p in Model)
+        {
+            <div class="col-md-6">
+                <div class="bg-white rounded-3 shadow-sm p-4">
+                    <div class="d-flex gap-3">
+                        @if (!string.IsNullOrEmpty(p.CoverImageUrl))
+                        {
+                            <img src="@p.CoverImageUrl" style="width:80px;height:80px;object-fit:cover" class="rounded" />
+                        }
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">@p.Title</h5>
+                            <div class="text-muted small mb-2">by @p.AuthorName · @p.CategoryName · @p.CreatedAt.ToString("MMM d, yyyy")</div>
+                            <p class="mb-2 text-muted small">@p.Excerpt</p>
+                            <div class="d-flex gap-1">
+                                <a asp-controller="Posts" asp-action="Details" asp-route-slug="@p.Slug" class="btn btn-sm btn-outline-secondary">Preview</a>
+                                <form asp-action="ApprovePost" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@p.Id" />
+                                    <button class="btn btn-sm btn-success">Approve</button>
+                                </form>
+                                <form asp-action="RejectPost" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@p.Id" />
+                                    <button class="btn btn-sm btn-outline-danger">Reject</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

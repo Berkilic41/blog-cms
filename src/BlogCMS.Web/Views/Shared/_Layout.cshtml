@@ -1,0 +1,96 @@
+@{
+    var displayName = User.FindFirst("DisplayName")?.Value ?? User.Identity?.Name;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · BlogCMS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">📝 BlogCMS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMain">
+                <form class="d-flex me-auto ms-md-3" asp-controller="Home" asp-action="Index" method="get">
+                    <input class="form-control form-control-sm me-2" type="search" name="search" placeholder="Search posts..." style="min-width:240px" />
+                    <button class="btn btn-sm btn-outline-light" type="submit">Search</button>
+                </form>
+                <ul class="navbar-nav">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        if (User.IsInRole("Admin") || User.IsInRole("Author"))
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Author" asp-action="Index">My Posts</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Author" asp-action="Create">+ New</a></li>
+                        }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Admin</a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">Dashboard</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Users">Users</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="PendingPosts">Pending posts</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Comments">Pending comments</a></li>
+                                </ul>
+                            </li>
+                        }
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">@displayName</a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li class="px-3 py-1 text-muted small">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <form asp-controller="Account" asp-action="Logout" method="post" class="px-3">
+                                        @Html.AntiForgeryToken()
+                                        <button class="btn btn-sm btn-outline-secondary w-100" type="submit">Sign out</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Sign in</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Register">Register</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        @if (TempData["Success"] is string s)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @s
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["Error"] is string e)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @e
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @RenderBody()
+    </main>
+
+    <footer class="border-top mt-5 py-3 text-center text-muted small">
+        BlogCMS &middot; ASP.NET Core MVC + ADO.NET
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

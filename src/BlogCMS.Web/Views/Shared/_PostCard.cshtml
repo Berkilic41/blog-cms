@@ -1,0 +1,37 @@
+@model Post
+<div class="card h-100 shadow-sm border-0">
+    @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+    {
+        <a asp-controller="Posts" asp-action="Details" asp-route-slug="@Model.Slug">
+            <img src="@Model.CoverImageUrl" class="card-img-top" style="height:200px;object-fit:cover" alt="" loading="lazy" />
+        </a>
+    }
+    <div class="card-body d-flex flex-column">
+        <div class="mb-2">
+            <a asp-controller="Home" asp-action="Index" asp-route-categoryId="@Model.CategoryId" class="badge text-decoration-none bg-primary-subtle text-primary-emphasis">@Model.CategoryName</a>
+            @if (Model.Status != "Published")
+            {
+                <span class="badge bg-warning-subtle text-warning-emphasis ms-1">@Model.Status</span>
+            }
+        </div>
+        <h5 class="card-title">
+            <a asp-controller="Posts" asp-action="Details" asp-route-slug="@Model.Slug" class="text-decoration-none text-dark stretched-link">
+                @Model.Title
+            </a>
+        </h5>
+        <p class="card-text text-muted small flex-grow-1">@Model.Excerpt</p>
+        <div class="d-flex align-items-center justify-content-between text-muted small mt-2 pt-2 border-top">
+            <div class="d-flex align-items-center gap-2">
+                @if (!string.IsNullOrEmpty(Model.AuthorAvatar))
+                {
+                    <img src="@Model.AuthorAvatar" class="rounded-circle" style="width:24px;height:24px;object-fit:cover" alt="" />
+                }
+                <span>@Model.AuthorName</span>
+            </div>
+            <div>
+                <span title="Comments">💬 @Model.CommentCount</span>
+                <span class="ms-2" title="Likes">❤ @Model.LikeCount</span>
+            </div>
+        </div>
+    </div>
+</div>

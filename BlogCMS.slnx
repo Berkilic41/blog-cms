@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BlogCMS.Business/BlogCMS.Business.csproj" />
+    <Project Path="src/BlogCMS.Data/BlogCMS.Data.csproj" />
+    <Project Path="src/BlogCMS.Web/BlogCMS.Web.csproj" />
+  </Folder>
+</Solution>

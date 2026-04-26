@@ -1,0 +1,82 @@
+@model PostDetailsViewModel
+@{
+    ViewData["Title"] = Model.Post.Title;
+}
+
+<article class="bg-white rounded-3 shadow-sm p-4 p-md-5 mb-4">
+    @if (!string.IsNullOrEmpty(Model.Post.CoverImageUrl))
+    {
+        <img src="@Model.Post.CoverImageUrl" class="img-fluid rounded mb-4" style="max-height:400px;width:100%;object-fit:cover" alt="" />
+    }
+
+    <div class="mb-3">
+        <a asp-controller="Home" asp-action="Index" asp-route-categoryId="@Model.Post.CategoryId" class="badge bg-primary-subtle text-primary-emphasis text-decoration-none">@Model.Post.CategoryName</a>
+        @foreach (var tag in Model.Post.Tags)
+        {
+            <a asp-controller="Home" asp-action="Index" asp-route-tag="@tag.Slug" class="badge bg-light text-secondary text-decoration-none ms-1">#@tag.Name</a>
+        }
+    </div>
+
+    <h1 class="mb-3">@Model.Post.Title</h1>
+
+    <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+        @if (!string.IsNullOrEmpty(Model.Post.AuthorAvatar))
+        {
+            <img src="@Model.Post.AuthorAvatar" class="rounded-circle me-2" style="width:40px;height:40px;object-fit:cover" />
+        }
+        <div>
+            <div class="fw-semibold">@(Model.Post.AuthorDisplay ?? Model.Post.AuthorName)</div>
+            <small class="text-muted">@(Model.Post.PublishedAt ?? Model.Post.CreatedAt).ToString("MMMM d, yyyy")</small>
+        </div>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <button id="like-btn" class="btn btn-sm @(Model.IsLiked ? "btn-danger" : "btn-outline-danger")"
+                    data-post-id="@Model.Post.Id"
+                    @(User.Identity?.IsAuthenticated == true ? "" : "disabled")>
+                <span id="like-icon">@(Model.IsLiked ? "❤" : "♡")</span>
+                <span id="like-count">@Model.Post.LikeCount</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="post-content">
+        @Html.Raw(Model.Post.Content)
+    </div>
+</article>
+
+<section class="bg-white rounded-3 shadow-sm p-4 p-md-5">
+    <h3 class="h5 mb-4">💬 Comments (<span id="comment-count">@Model.Post.CommentCount</span>)</h3>
+
+    @if (Model.CanComment)
+    {
+        <form id="root-comment-form" class="comment-form mb-4" data-parent-id="">
+            @Html.AntiForgeryToken()
+            <textarea class="form-control" rows="3" placeholder="Write a comment..." required maxlength="2000"></textarea>
+            <button type="submit" class="btn btn-primary mt-2">Post comment</button>
+        </form>
+    }
+    else
+    {
+        <p class="text-muted">
+            <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Url.Action("Details", "Posts", new { slug = Model.Post.Slug })">Sign in</a>
+            to leave a comment.
+        </p>
+    }
+
+    <div id="comments-list">
+        @foreach (var c in Model.Comments)
+        {
+            <partial name="_CommentItem" model="c" />
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        const POST_ID = @Model.Post.Id;
+        const ANTI_FORGERY = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        const CURRENT_USER = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+            username = User.Identity?.Name,
+            avatarUrl = User.FindFirst("AvatarUrl")?.Value
+        }));
+    </script>
+}

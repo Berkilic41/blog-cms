@@ -1,0 +1,78 @@
+@model PostFormViewModel
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit post" : "New post";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="bg-white rounded-3 shadow-sm p-4 p-md-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h4 mb-0">@(isEdit ? "Edit post" : "Create new post")</h1>
+                @if (isEdit)
+                {
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis">Current: @Model.CurrentStatus</span>
+                }
+            </div>
+            <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="CurrentStatus" />
+                <div class="alert alert-danger" asp-validation-summary="ModelOnly"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control form-control-lg" />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="CategoryId" class="form-label">Category</label>
+                        <select asp-for="CategoryId" class="form-select">
+                            <option value="">Pick one...</option>
+                            @foreach (var c in Model.Categories)
+                            {
+                                <option value="@c.Id">@c.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="TagsCsv" class="form-label">Tags (comma-separated)</label>
+                        <input asp-for="TagsCsv" class="form-control" placeholder="e.g. csharp, dotnet, sql-server" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CoverImageUrl" class="form-label">Cover image URL</label>
+                    <input asp-for="CoverImageUrl" class="form-control" placeholder="https://..." />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Excerpt" class="form-label">Short excerpt</label>
+                    <input asp-for="Excerpt" class="form-control" placeholder="One-line summary shown in the post list" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Content" class="form-label">Content (HTML allowed)</label>
+                    <textarea asp-for="Content" class="form-control" rows="14"></textarea>
+                    <span asp-validation-for="Content" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Status" class="form-label">Save as</label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="Draft">Draft (only visible to me)</option>
+                        <option value="Pending">Submit for review</option>
+                    </select>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">@(isEdit ? "Update post" : "Create post")</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

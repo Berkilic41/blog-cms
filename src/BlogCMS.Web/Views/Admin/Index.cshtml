@@ -1,0 +1,49 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin dashboard";
+}
+
+<h1 class="h3 mb-4">Admin dashboard</h1>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="bg-white rounded-3 shadow-sm p-4">
+            <div class="text-muted small">Users</div>
+            <div class="h2 mb-0">@Model.UserCount</div>
+            <a asp-action="Users" class="small">Manage →</a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="bg-white rounded-3 shadow-sm p-4 border-start border-warning border-4">
+            <div class="text-muted small">Pending posts</div>
+            <div class="h2 mb-0">@Model.PendingPostCount</div>
+            <a asp-action="PendingPosts" class="small">Review →</a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="bg-white rounded-3 shadow-sm p-4 border-start border-info border-4">
+            <div class="text-muted small">Pending comments</div>
+            <div class="h2 mb-0">@Model.PendingCommentCount</div>
+            <a asp-action="Comments" class="small">Moderate →</a>
+        </div>
+    </div>
+</div>
+
+@if (Model.RecentPending.Any())
+{
+    <div class="bg-white rounded-3 shadow-sm p-4">
+        <h2 class="h5 mb-3">Recent pending posts</h2>
+        <ul class="list-group list-group-flush">
+            @foreach (var p in Model.RecentPending)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>@p.Title</strong>
+                        <div class="text-muted small">by @p.AuthorName · @p.CategoryName</div>
+                    </div>
+                    <a asp-action="PendingPosts" class="btn btn-sm btn-outline-primary">Review</a>
+                </li>
+            }
+        </ul>
+    </div>
+}

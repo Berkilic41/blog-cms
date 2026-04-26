@@ -1,0 +1,40 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Sign in";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="bg-white rounded-3 shadow-sm p-4 p-md-5">
+            <h2 class="h4 mb-4">Sign in</h2>
+            <form asp-action="Login" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ReturnUrl" />
+                <div class="alert alert-danger" asp-validation-summary="ModelOnly"></div>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" autocomplete="email" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control" autocomplete="current-password" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Sign in</button>
+            </form>
+            <p class="mt-3 mb-0 text-muted small">
+                No account? <a asp-action="Register">Register</a>
+            </p>
+            <hr />
+            <details class="text-muted small">
+                <summary>Demo credentials</summary>
+                <ul class="mb-0 mt-1 ps-3">
+                    <li>admin@blog.test / password123 (Admin)</li>
+                    <li>alice@blog.test / password123 (Author)</li>
+                    <li>reader@blog.test / password123 (Reader)</li>
+                </ul>
+            </details>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,52 @@
+@model IEnumerable<Comment>
+@{
+    ViewData["Title"] = "Pending comments";
+}
+
+<h1 class="h3 mb-4">Pending comments</h1>
+
+@if (!Model.Any())
+{
+    <div class="bg-white rounded-3 shadow-sm p-5 text-center text-muted">
+        Nothing to moderate. 🎉
+    </div>
+}
+else
+{
+    <div class="bg-white rounded-3 shadow-sm overflow-hidden">
+        <table class="table mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Comment</th>
+                    <th>By</th>
+                    <th>On post</th>
+                    <th>When</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model)
+                {
+                    <tr>
+                        <td>@c.Content</td>
+                        <td class="text-muted small">@c.Username</td>
+                        <td><a asp-controller="Posts" asp-action="Details" asp-route-slug="@c.PostSlug">@c.PostTitle</a></td>
+                        <td class="text-muted small">@c.CreatedAt.ToString("MMM d, HH:mm")</td>
+                        <td>
+                            <form asp-action="ApproveComment" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@c.Id" />
+                                <button class="btn btn-sm btn-success">Approve</button>
+                            </form>
+                            <form asp-action="DeleteComment" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@c.Id" />
+                                <button class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,41 @@
+@model PostListViewModel
+@{
+    ViewData["Title"] = Model.PageTitle;
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h3 mb-1">@Model.PageTitle</h1>
+        <p class="text-muted small mb-0">@Model.Total post@(Model.Total == 1 ? "" : "s")</p>
+    </div>
+    <div class="col-md-4">
+        <form asp-controller="Home" asp-action="Index" method="get" class="d-flex gap-2">
+            <select name="categoryId" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All categories</option>
+                @foreach (var c in Model.Categories)
+                {
+                    <option value="@c.Id" selected="@(Model.CategoryId == c.Id)">@c.Name (@c.PostCount)</option>
+                }
+            </select>
+        </form>
+    </div>
+</div>
+
+@if (!Model.Posts.Any())
+{
+    <div class="text-center py-5 text-muted">
+        <p class="mb-0">No posts found.</p>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var post in Model.Posts)
+        {
+            <div class="col-md-6 col-lg-4">
+                <partial name="_PostCard" model="post" />
+            </div>
+        }
+    </div>
+    <partial name="_Pagination" model="Model" />
+}

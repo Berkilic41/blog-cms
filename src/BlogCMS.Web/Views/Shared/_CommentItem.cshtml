@@ -1,0 +1,28 @@
+@model Comment
+<div class="d-flex gap-3 mb-3 comment-item" data-comment-id="@Model.Id">
+    <img src="@(string.IsNullOrEmpty(Model.AvatarUrl) ? $"https://i.pravatar.cc/40?u={Model.Username}" : Model.AvatarUrl)"
+         class="rounded-circle flex-shrink-0" style="width:40px;height:40px;object-fit:cover" alt="" />
+    <div class="flex-grow-1">
+        <div class="d-flex align-items-baseline">
+            <strong>@Model.Username</strong>
+            <span class="text-muted small ms-2">@Model.CreatedAt.ToString("MMM d, HH:mm")</span>
+        </div>
+        <p class="mb-1">@Model.Content</p>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <button type="button" class="btn btn-sm btn-link p-0 reply-toggle">Reply</button>
+        }
+        <div class="reply-form mt-2" style="display:none">
+            <form class="comment-form" data-parent-id="@Model.Id">
+                <textarea class="form-control form-control-sm" rows="2" placeholder="Write a reply..." required maxlength="2000"></textarea>
+                <button class="btn btn-sm btn-primary mt-1" type="submit">Reply</button>
+            </form>
+        </div>
+        <div class="ms-3 mt-3 replies">
+            @foreach (var reply in Model.Replies)
+            {
+                <partial name="_CommentItem" model="reply" />
+            }
+        </div>
+    </div>
+</div>
