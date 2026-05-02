@@ -32,6 +32,15 @@ public static partial class SlugGenerator
         return slug;
     }
 
+    public static async Task<string> GenerateUniqueAsync(string input, Func<string, Task<bool>> exists)
+    {
+        var baseSlug = Generate(input);
+        var slug = baseSlug;
+        var i = 2;
+        while (await exists(slug)) slug = $"{baseSlug}-{i++}";
+        return slug;
+    }
+
     [GeneratedRegex(@"[^a-z0-9]+")] private static partial Regex NonWord();
     [GeneratedRegex(@"-+")]         private static partial Regex MultiDash();
 }

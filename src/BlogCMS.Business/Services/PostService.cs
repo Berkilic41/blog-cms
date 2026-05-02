@@ -8,15 +8,18 @@ namespace BlogCMS.Business.Services;
 
 public class PostService : IPostService
 {
-    private readonly IPostRepository _posts;
-    private readonly ITagRepository _tags;
-    private readonly ICategoryRepository _categories;
+    private readonly IPostRepository      _posts;
+    private readonly ITagRepository       _tags;
+    private readonly ICategoryRepository  _categories;
+    private readonly ILogger<PostService> _logger;
 
-    public PostService(IPostRepository posts, ITagRepository tags, ICategoryRepository categories)
+    public PostService(IPostRepository posts, ITagRepository tags, ICategoryRepository categories,
+        ILogger<PostService> logger)
     {
-        _posts = posts;
-        _tags = tags;
+        _posts      = posts;
+        _tags       = tags;
         _categories = categories;
+        _logger     = logger;
     }
 
     public async Task<PostListResult> SearchAsync(PostQuery query)
@@ -35,7 +38,7 @@ public class PostService : IPostService
         if (!await _categories.ExistsAsync(input.CategoryId))
             throw new InvalidOperationException("Selected category does not exist.");
 
-        var slug = SlugGenerator.GenerateUnique(input.Title, s => _posts.GetBySlugAsync(s).Result is not null);
+        var slug = await SlugGenerator.GenerateUniqueAsync(input.Title, async s => await _posts.GetBySlugAsync(s) is not null);
         var post = new Post
         {
             Title = input.Title.Trim(),
@@ -49,6 +52,7 @@ public class PostService : IPostService
         };
         post.Id = await _posts.CreateAsync(post);
         await SyncTagsAsync(post.Id, input.TagsCsv);
+        _logger.LogInformation("Post {PostId} '{Title}' created by author {AuthorId}", post.Id, post.Title, authorId);
         return post.Id;
     }
 
@@ -87,6 +91,7 @@ public class PostService : IPostService
         if (!isAdmin && existing.AuthorId != currentUserId)
             throw new UnauthorizedAccessException("You can only delete your own posts.");
         await _posts.DeleteAsync(postId);
+        _logger.LogInformation("Post {PostId} deleted by user {UserId}", postId, currentUserId);
     }
 
     public Task<IEnumerable<Post>> GetPendingAsync() => _posts.GetPendingAsync();
@@ -95,12 +100,14 @@ public class PostService : IPostService
     {
         var post = await _posts.GetByIdAsync(postId) ?? throw new KeyNotFoundException("Post not found.");
         await _posts.UpdateStatusAsync(post.Id, "Published", DateTime.UtcNow);
+        _logger.LogInformation("Post {PostId} approved and published", postId);
     }
 
     public async Task RejectAsync(int postId)
     {
         var post = await _posts.GetByIdAsync(postId) ?? throw new KeyNotFoundException("Post not found.");
         await _posts.UpdateStatusAsync(post.Id, "Rejected", null);
+        _logger.LogInformation("Post {PostId} rejected", postId);
     }
 
     private async Task SyncTagsAsync(int postId, string? csv)
