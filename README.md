@@ -1,6 +1,24 @@
 # BlogCMS
 
+[![CI](https://github.com/Berkilic41/blog-cms/actions/workflows/ci.yml/badge.svg)](https://github.com/Berkilic41/blog-cms/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4)](https://dotnet.microsoft.com/)
+
 A multi-user blog content management system built with ASP.NET Core MVC (.NET 8), SQL Server, and ADO.NET — **no ORM**. Designed with a clean three-layer architecture (Data / Business / Web) so each piece is easy to read, test, and review.
+
+## Why I Built This
+
+Content management systems power a large share of the web, yet most tutorials skip the engineering decisions that make them production-worthy. I built BlogCMS to practice the **full post-moderation lifecycle** (Draft → Pending → Published/Rejected), multi-role authorization, and stored-procedure-based pagination — all without reaching for a framework that hides the complexity. The result is a codebase where every query, every permission check, and every state transition is explicit and testable.
+
+## 🔑 Technical Highlights
+
+- **Post moderation workflow** — Authors submit for review; Admins approve/reject; Published posts revert to Pending when an Author edits them
+- **Async slug generation** — Fixed a thread-pool-blocking `.Result` call by implementing `GenerateUniqueAsync` with `Func<string, Task<bool>>` delegate
+- **Stored-procedure pagination** — `sp_GetPostsPaged` with `OFFSET/FETCH` keeps DB load constant regardless of dataset size
+- **25+ unit tests** — PostService lifecycle, AuthService, CommentService validation (xUnit + Moq + FluentAssertions)
+- **Integration tests** — `WebApplicationFactory` verifying security headers and auth redirects
+- **CI/CD** — GitHub Actions with test coverage upload on every push
+- **Containerized** — Multi-stage Dockerfile + docker-compose with SQL Server 2022
 
 ---
 
